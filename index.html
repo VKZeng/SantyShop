@@ -3,61 +3,350 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo Online</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Calculadora de Pérdidas por Apagones</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #004225 0%, #002412 100%);
+            color: #D4AF37;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
+            border: 2px solid #D4AF37;
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, #002412, #004225);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid #D4AF37;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #004225;
+            border-radius: 8px;
+            background-color: #000;
+            color: #D4AF37;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #D4AF37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+        }
+        
+        .results-section {
+            background: linear-gradient(to right, #002412, #004225);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border: 1px solid #D4AF37;
+        }
+        
+        .results-title {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 10px;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .result-card {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #D4AF37;
+            transition: transform 0.3s ease;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+        
+        .result-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #9e8a40;
+        }
+        
+        .result-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #D4AF37;
+        }
+        
+        .cta-section {
+            background: linear-gradient(to right, rgba(0, 36, 37, 0.7), rgba(0, 66, 37, 0.9));
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            text-align: center;
+            border: 1px solid #D4AF37;
+        }
+        
+        .cta-text {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+        
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 30px;
+            background-color: #004225;
+            color: #D4AF37;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            border: 2px solid #D4AF37;
+        }
+        
+        .whatsapp-btn:hover {
+            background-color: #D4AF37;
+            color: #004225;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+        
+        .whatsapp-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .info-text {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Catálogo Online</h1>
-        <nav>
-            <ul>
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#catalogo">Catálogo</a></li>
-                <li><a href="#carrito">Carrito</a></li>
-                <li><a href="#login">Iniciar sesión</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <section id="inicio">
-        <h2>Bienvenido a nuestro catálogo</h2>
-        <p>Explora los productos de nuestras tiendas.</p>
-    </section>
-
-    <section id="catalogo">
-        <h2>Productos</h2>
-        <div class="producto">
-            <img src="producto1.jpg" alt="Producto 1">
-            <h3>Producto 1</h3>
-            <p>Descripción del producto 1.</p>
-            <button onclick="agregarAlCarrito('Producto 1')">Agregar al carrito</button>
-            <a href="https://wa.me/123456789?text=Hola,%20estoy%20interesado%20en%20Producto%201" target="_blank">
-                <button>Comprar por WhatsApp</button>
-            </a>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-bolt"></i> Calculadora de Pérdidas por Apagones</h1>
+            <p class="subtitle">Calcule el impacto económico de los cortes de energía en su negocio</p>
+        </header>
+        
+        <div class="content">
+            <div class="input-section">
+                <div>
+                    <div class="input-group">
+                        <label for="dailyRevenue"><i class="fas fa-money-bill-wave"></i> Facturación diaria promedio (CUP):</label>
+                        <input type="number" id="dailyRevenue" min="0" value="1000">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="outageHours"><i class="fas fa-clock"></i> Duración promedio de cada apagón (horas):</label>
+                        <input type="number" id="outageHours" min="0" step="0.5" value="4">
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="input-group">
+                        <label for="outagesPerWeek"><i class="fas fa-power-off"></i> ¿Cuántos apagones sufres por semana?:</label>
+                        <input type="number" id="outagesPerWeek" min="0" value="3">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="lossFactor"><i class="fas fa-percentage"></i> Factor de pérdida (%):</label>
+                        <select id="lossFactor">
+                            <option value="0.6">60%</option>
+                            <option value="0.7" selected>70%</option>
+                            <option value="0.8">80%</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <h2 class="results-title">Resultados de Pérdidas Estimadas</h2>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-title">Pérdida por apagón</div>
+                        <div class="result-value" id="perOutage">$350.00 CUP</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Pérdida diaria</div>
+                        <div class="result-value" id="dailyLoss">$150.00 CUP</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Pérdida semanal</div>
+                        <div class="result-value" id="weeklyLoss">$1,050.00 CUP</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Pérdida mensual</div>
+                        <div class="result-value" id="monthlyLoss">$4,200.00 CUP</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Pérdida trimestral</div>
+                        <div class="result-value" id="quarterlyLoss">$12,600.00 CUP</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Pérdida anual</div>
+                        <div class="result-value" id="annualLoss">$50,400.00 CUP</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cta-section">
+                <p class="cta-text"><b>¿Las cifras te preocupan?</b> Deja de perder dinero. Una solución de respaldo energético se paga sola en poco tiempo.</p>
+                <a href="https://wa.me/1234567890?text=Me%20interesa%20saber%20más%20sobre%20soluciones%20de%20respaldo%20energético" class="whatsapp-btn" target="_blank">
+                    <i class="fab fa-whatsapp whatsapp-icon"></i> ¡Contáctanos por WhatsApp!
+                </a>
+                <p class="info-text">Nuestros expertos te asesorarán sobre la mejor solución para tu negocio</p>
+            </div>
         </div>
-        <!-- Repetir para más productos -->
-    </section>
+    </div>
 
-    <section id="carrito">
-        <h2>Carrito de compras</h2>
-        <ul id="lista-carrito"></ul>
-        <button onclick="finalizarCompra()">Finalizar compra</button>
-    </section>
-
-    <section id="login">
-        <h2>Iniciar sesión</h2>
-        <form action="login.php" method="POST">
-            <input type="text" name="usuario" placeholder="Usuario" required>
-            <input type="password" name="contraseña" placeholder="Contraseña" required>
-            <button type="submit">Iniciar sesión</button>
-        </form>
-        <p>¿No tienes cuenta? <a href="#registro">Regístrate aquí</a>.</p>
-    </section>
-
-    <footer>
-        <p>&copy; 2023 Catálogo Online</p>
-    </footer>
-
-    <script src="scripts.js"></script>
+    <script>
+        // Elementos del DOM
+        const dailyRevenueInput = document.getElementById('dailyRevenue');
+        const outageHoursInput = document.getElementById('outageHours');
+        const outagesPerWeekInput = document.getElementById('outagesPerWeek');
+        const lossFactorSelect = document.getElementById('lossFactor');
+        
+        // Elementos de resultados
+        const perOutageElement = document.getElementById('perOutage');
+        const dailyLossElement = document.getElementById('dailyLoss');
+        const weeklyLossElement = document.getElementById('weeklyLoss');
+        const monthlyLossElement = document.getElementById('monthlyLoss');
+        const quarterlyLossElement = document.getElementById('quarterlyLoss');
+        const annualLossElement = document.getElementById('annualLoss');
+        
+        // Función para formatear números como moneda
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('es-CU', { 
+                style: 'currency', 
+                currency: 'CUP',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+        
+        // Función para calcular todas las pérdidas
+        function calculateLosses() {
+            const dailyRevenue = parseFloat(dailyRevenueInput.value) || 0;
+            const outageHours = parseFloat(outageHoursInput.value) || 0;
+            const outagesPerWeek = parseFloat(outagesPerWeekInput.value) || 0;
+            const lossFactor = parseFloat(lossFactorSelect.value) || 0.7;
+            
+            // Cálculos
+            const hourlyRevenue = dailyRevenue / 8;
+            const lossPerHour = hourlyRevenue * lossFactor;
+            const lossPerOutage = lossPerHour * outageHours;
+            const dailyLoss = lossPerOutage * (outagesPerWeek / 7); // Promedio diario
+            const weeklyLoss = lossPerOutage * outagesPerWeek;
+            const monthlyLoss = weeklyLoss * 4.33; // Promedio de semanas por mes
+            const quarterlyLoss = monthlyLoss * 3;
+            const annualLoss = monthlyLoss * 12;
+            
+            // Actualizar la interfaz
+            perOutageElement.textContent = formatMoney(lossPerOutage);
+            dailyLossElement.textContent = formatMoney(dailyLoss);
+            weeklyLossElement.textContent = formatMoney(weeklyLoss);
+            monthlyLossElement.textContent = formatMoney(monthlyLoss);
+            quarterlyLossElement.textContent = formatMoney(quarterlyLoss);
+            annualLossElement.textContent = formatMoney(annualLoss);
+        }
+        
+        // Event listeners para los inputs
+        dailyRevenueInput.addEventListener('input', calculateLosses);
+        outageHoursInput.addEventListener('input', calculateLosses);
+        outagesPerWeekInput.addEventListener('input', calculateLosses);
+        lossFactorSelect.addEventListener('change', calculateLosses);
+        
+        // Calcular al cargar la página
+        window.addEventListener('load', calculateLosses);
+    </script>
 </body>
 </html>
