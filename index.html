@@ -3,350 +3,811 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Pérdidas por Apagones</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Calculadora para Autonomía de Baterías</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
+        /* --- PALETA DE COLORES Y VARIABLES --- */
+        :root {
+            --bg-color: #F5F5F5;
+            --text-color: #1A1A1A;
+            --primary-color: #006400; /* Verde esmeralda más intenso */
+            --secondary-color: #D4AF37;
+            --accent-color: #00C853; /* Verde más brillante */
+            --border-color: #CCCCCC;
+            --alert-color: #FF6B6B;
+            --white-color: #FFFFFF;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --whatsapp-color: #25D366;
+        }
+
+        /* --- ESTILOS GENERALES --- */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #004225 0%, #002412 100%);
-            color: #D4AF37;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #006400 0%, #00C853 100%); /* Fondo verde esmeralda */
+            color: var(--text-color);
+            line-height: 1.6;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            padding-bottom: 2rem;
         }
-        
+
         .container {
-            max-width: 800px;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 100, 0, 0.4);
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+        }
+
+        header h1 {
+            color: var(--white-color);
+            font-weight: 700;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            font-size: 1.4rem;
+        }
+
+        /* --- TARJETAS Y FORMULARIOS --- */
+        .card {
+            background-color: var(--white-color);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.7rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
             width: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
-            border: 2px solid #D4AF37;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(0, 200, 83, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* --- BOTONES --- */
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: inline-block;
+            width: 100%;
+            margin-top: 0.5rem;
+            position: relative;
             overflow: hidden;
         }
-        
-        header {
-            background: linear-gradient(to right, #002412, #004225);
-            padding: 25px;
-            text-align: center;
-            border-bottom: 2px solid #D4AF37;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-        
-        .content {
-            padding: 30px;
-        }
-        
-        .input-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .input-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        
-        input, select {
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
             width: 100%;
-            padding: 14px;
-            border: 2px solid #004225;
-            border-radius: 8px;
-            background-color: #000;
-            color: #D4AF37;
-            font-size: 1.1rem;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #008000 100%);
+            color: var(--white-color);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #008000 0%, var(--accent-color) 100%);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #f4d03f 100%);
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #7ed321 100%);
+            color: var(--primary-color);
+        }
+
+        .btn-whatsapp {
+            background: linear-gradient(135deg, var(--whatsapp-color) 0%, #128C7E 100%);
+            color: white;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-whatsapp:hover {
+            background: linear-gradient(135deg, #128C7E 0%, var(--whatsapp-color) 100%);
+        }
+
+        /* --- TABLA DE EQUIPOS --- */
+        .table-container {
+            max-height: 350px;
+            overflow-y: auto;
+            border-radius: 10px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #equipment-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #equipment-table th,
+        #equipment-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #equipment-table th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #008000 100%);
+            color: var(--white-color);
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        #equipment-table tbody tr:nth-child(even) {
+            background-color: rgba(0, 200, 83, 0.1);
+        }
+
+        #equipment-table tbody tr:hover {
+            background-color: rgba(0, 200, 83, 0.2);
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, var(--alert-color) 0%, #ff5252 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 0.8rem;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
         }
-        
-        input:focus, select:focus {
-            outline: none;
-            border-color: #D4AF37;
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+
+        .delete-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
         }
-        
-        .results-section {
-            background: linear-gradient(to right, #002412, #004225);
-            padding: 25px;
-            border-radius: 12px;
-            margin-top: 20px;
-            border: 1px solid #D4AF37;
+
+        .action-buttons {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
         }
-        
-        .results-title {
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 1.8rem;
-            border-bottom: 2px solid #D4AF37;
-            padding-bottom: 10px;
-        }
-        
+
+        /* --- RESULTADOS Y ALERTAS --- */
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
-        
+
         .result-card {
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(0, 200, 83, 0.2) 0%, rgba(212, 175, 55, 0.1) 100%);
+            padding: 2rem;
+            border-radius: 12px;
             text-align: center;
-            border: 1px solid #D4AF37;
+            border: 2px solid rgba(0, 200, 83, 0.3);
             transition: transform 0.3s ease;
         }
-        
+
         .result-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+            transform: translateY(-3px);
         }
-        
-        .result-title {
+
+        .result-card h3 {
+            margin-bottom: 1rem;
             font-size: 1.1rem;
-            margin-bottom: 10px;
-            color: #9e8a40;
+            color: var(--text-color);
+            font-weight: 500;
         }
-        
-        .result-value {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #D4AF37;
+
+        .result-card p {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
-        
-        .cta-section {
-            background: linear-gradient(to right, rgba(0, 36, 37, 0.7), rgba(0, 66, 37, 0.9));
-            padding: 25px;
+
+        .alert {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 152, 152, 0.1) 100%);
+            border: 2px solid var(--alert-color);
             border-radius: 12px;
-            margin-top: 30px;
-            text-align: center;
-            border: 1px solid #D4AF37;
+            padding: 1.5rem;
+            color: #5c2727;
+            animation: pulse 2s infinite;
         }
-        
-        .cta-text {
-            font-size: 1.3rem;
-            margin-bottom: 20px;
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
-        
-        .whatsapp-btn {
+
+        .alert p {
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        /* --- TOOLTIPS --- */
+        .tooltip-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .tooltip-container label {
+            margin-right: 0.5rem;
+        }
+
+        .tooltip-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 15px 30px;
-            background-color: #004225;
-            color: #D4AF37;
-            text-decoration: none;
-            border-radius: 8px;
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #f4d03f 100%);
+            color: var(--text-color);
+            border-radius: 50%;
+            font-size: 14px;
             font-weight: bold;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-            border: 2px solid #D4AF37;
+            cursor: help;
+            transition: transform 0.2s ease;
         }
-        
-        .whatsapp-btn:hover {
-            background-color: #D4AF37;
-            color: #004225;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+
+        .tooltip-icon:hover {
+            transform: scale(1.1);
         }
-        
-        .whatsapp-icon {
-            margin-right: 10px;
-            font-size: 1.5rem;
-        }
-        
-        .info-text {
-            margin-top: 15px;
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--text-color);
+            color: var(--white-color);
+            text-align: center;
+            border-radius: 8px;
+            padding: 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 130%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
             font-size: 0.9rem;
-            opacity: 0.8;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
-        
-        @media (max-width: 768px) {
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--text-color) transparent transparent transparent;
+        }
+
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* --- GRÁFICO --- */
+        #consumption-chart {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        /* --- RESPONSIVIDAD --- */
+        @media (max-width: 992px) {
             .container {
-                padding: 15px;
+                grid-template-columns: 1fr;
             }
             
-            h1 {
+            header h1 {
                 font-size: 2rem;
             }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 1rem;
+            }
             
-            .input-section {
-                grid-template-columns: 1fr;
+            .card {
+                padding: 1.5rem;
             }
             
             .results-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .result-card p {
+                font-size: 2rem;
+            }
+            
+            header {
+                padding: 1.5rem;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-bolt"></i> Calculadora de Pérdidas por Apagones</h1>
-            <p class="subtitle">Calcule el impacto económico de los cortes de energía en su negocio</p>
-        </header>
-        
-        <div class="content">
-            <div class="input-section">
-                <div>
-                    <div class="input-group">
-                        <label for="dailyRevenue"><i class="fas fa-money-bill-wave"></i> Facturación diaria promedio (CUP):</label>
-                        <input type="number" id="dailyRevenue" min="0" value="1000">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="outageHours"><i class="fas fa-clock"></i> Duración promedio de cada apagón (horas):</label>
-                        <input type="number" id="outageHours" min="0" step="0.5" value="4">
-                    </div>
+    <header>
+        <h1>⚡ Calculadora para Autonomía de Baterías</h1>
+    </header>
+
+    <main class="container">
+        <section class="input-section">
+            <div class="card">
+                <h2>🔋 1. Configura tu Banco de Baterías</h2>
+                <div class="form-group">
+                    <label for="battery-capacity">Capacidad total del banco (Wh)</label>
+                    <input type="number" id="battery-capacity" placeholder="Ej: 5000" min="0">
                 </div>
-                
-                <div>
-                    <div class="input-group">
-                        <label for="outagesPerWeek"><i class="fas fa-power-off"></i> ¿Cuántos apagones sufres por semana?:</label>
-                        <input type="number" id="outagesPerWeek" min="0" value="3">
+                <div class="form-group tooltip-container">
+                    <label for="inverter-efficiency">Eficiencia del Inversor (%)</label>
+                    <input type="number" id="inverter-efficiency" value="90" min="0" max="100">
+                    <span class="tooltip-icon">?</span>
+                    <span class="tooltip-text">Eficiencia con la que el inversor convierte la energía DC a AC. Un valor común es 90%.</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>⚙️ 2. Agrega tus Equipos</h2>
+                <form id="equipment-form">
+                    <div class="form-group">
+                        <label for="equipment-name">Nombre del equipo</label>
+                        <input type="text" id="equipment-name" placeholder="Ej: Televisor" required>
                     </div>
-                    
-                    <div class="input-group">
-                        <label for="lossFactor"><i class="fas fa-percentage"></i> Factor de pérdida (%):</label>
-                        <select id="lossFactor">
-                            <option value="0.6">60%</option>
-                            <option value="0.7" selected>70%</option>
-                            <option value="0.8">80%</option>
+                    <div class="form-group">
+                        <label for="equipment-power">Potencia (W)</label>
+                        <input type="number" id="equipment-power" placeholder="Ej: 150" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="consumption-type">Tipo de consumo</label>
+                        <select id="consumption-type">
+                            <option value="continuo">Continuo</option>
+                            <option value="ciclico">Cíclico</option>
                         </select>
                     </div>
+                    <div class="form-group" id="cycle-factor-group" style="display: none;">
+                         <div class="tooltip-container">
+                            <label for="cycle-factor">Factor de ciclo (%)</label>
+                             <span class="tooltip-icon">?</span>
+                             <span class="tooltip-text">Porcentaje de tiempo que el equipo está realmente encendido. Ej: Nevera ≈ 30-40%.</span>
+                        </div>
+                        <input type="number" id="cycle-factor" value="30" min="0" max="100">
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Agregar Equipo</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="output-section">
+            <div class="card">
+                <h2>📋 Equipos Agregados</h2>
+                <div class="table-container">
+                    <table id="equipment-table">
+                        <thead>
+                            <tr>
+                                <th>Equipo</th>
+                                <th>Potencia (W)</th>
+                                <th>Tipo</th>
+                                <th>Autonomía Individual</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="action-buttons">
+                     <button id="calculate-btn" class="btn btn-primary">🧮 Calcular Autonomía Total</button>
+                     <button id="clear-btn" class="btn btn-clear">🗑️ Limpiar Todo</button>
                 </div>
             </div>
-            
-            <div class="results-section">
-                <h2 class="results-title">Resultados de Pérdidas Estimadas</h2>
-                
+
+            <div class="card">
+                <h2>📊 Resultados</h2>
                 <div class="results-grid">
                     <div class="result-card">
-                        <div class="result-title">Pérdida por apagón</div>
-                        <div class="result-value" id="perOutage">$350.00 CUP</div>
+                        <h3>⚡ Consumo Total</h3>
+                        <p id="total-consumption">0 Wh</p>
                     </div>
-                    
                     <div class="result-card">
-                        <div class="result-title">Pérdida diaria</div>
-                        <div class="result-value" id="dailyLoss">$150.00 CUP</div>
-                    </div>
-                    
-                    <div class="result-card">
-                        <div class="result-title">Pérdida semanal</div>
-                        <div class="result-value" id="weeklyLoss">$1,050.00 CUP</div>
-                    </div>
-                    
-                    <div class="result-card">
-                        <div class="result-title">Pérdida mensual</div>
-                        <div class="result-value" id="monthlyLoss">$4,200.00 CUP</div>
-                    </div>
-                    
-                    <div class="result-card">
-                        <div class="result-title">Pérdida trimestral</div>
-                        <div class="result-value" id="quarterlyLoss">$12,600.00 CUP</div>
-                    </div>
-                    
-                    <div class="result-card">
-                        <div class="result-title">Pérdida anual</div>
-                        <div class="result-value" id="annualLoss">$50,400.00 CUP</div>
+                        <h3>⏱️ Autonomía Total</h3>
+                        <p id="estimated-autonomy">0 Horas</p>
                     </div>
                 </div>
+                <div id="alert-message" class="alert" style="display: none;">
+                    <p>🚨 **Atención:** La autonomía es muy baja. Considera aumentar la capacidad de tu banco de baterías o reducir el consumo.</p>
+                </div>
+                
+                <!-- Botón de WhatsApp -->
+                <a href="https://wa.me/message/I7Q2KRP7C4APD1" target="_blank" class="btn btn-whatsapp">
+                    💬 Contactarnos por WhatsApp
+                </a>
             </div>
             
-            <div class="cta-section">
-                <p class="cta-text"><b>¿Las cifras te preocupan?</b> Deja de perder dinero. Una solución de respaldo energético se paga sola en poco tiempo.</p>
-                <a href="https://wa.me/1234567890?text=Me%20interesa%20saber%20más%20sobre%20soluciones%20de%20respaldo%20energético" class="whatsapp-btn" target="_blank">
-                    <i class="fab fa-whatsapp whatsapp-icon"></i> ¡Contáctanos por WhatsApp!
-                </a>
-                <p class="info-text">Nuestros expertos te asesorarán sobre la mejor solución para tu negocio</p>
+            <div class="card">
+                <h2>📈 Distribución del Consumo por Equipo</h2>
+                <canvas id="consumption-chart"></canvas>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <script>
-        // Elementos del DOM
-        const dailyRevenueInput = document.getElementById('dailyRevenue');
-        const outageHoursInput = document.getElementById('outageHours');
-        const outagesPerWeekInput = document.getElementById('outagesPerWeek');
-        const lossFactorSelect = document.getElementById('lossFactor');
-        
-        // Elementos de resultados
-        const perOutageElement = document.getElementById('perOutage');
-        const dailyLossElement = document.getElementById('dailyLoss');
-        const weeklyLossElement = document.getElementById('weeklyLoss');
-        const monthlyLossElement = document.getElementById('monthlyLoss');
-        const quarterlyLossElement = document.getElementById('quarterlyLoss');
-        const annualLossElement = document.getElementById('annualLoss');
-        
-        // Función para formatear números como moneda
-        function formatMoney(amount) {
-            return new Intl.NumberFormat('es-CU', { 
-                style: 'currency', 
-                currency: 'CUP',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(amount);
-        }
-        
-        // Función para calcular todas las pérdidas
-        function calculateLosses() {
-            const dailyRevenue = parseFloat(dailyRevenueInput.value) || 0;
-            const outageHours = parseFloat(outageHoursInput.value) || 0;
-            const outagesPerWeek = parseFloat(outagesPerWeekInput.value) || 0;
-            const lossFactor = parseFloat(lossFactorSelect.value) || 0.7;
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- VARIABLES Y ESTADO ---
+            let equipmentList = JSON.parse(localStorage.getItem('equipmentList')) || [];
+            let consumptionChart = null;
+
+            // --- SELECTORES DEL DOM ---
+            const equipmentForm = document.getElementById('equipment-form');
+            const consumptionTypeSelect = document.getElementById('consumption-type');
+            const cycleFactorGroup = document.getElementById('cycle-factor-group');
+            const tableBody = document.querySelector('#equipment-table tbody');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const clearBtn = document.getElementById('clear-btn');
             
-            // Cálculos
-            const hourlyRevenue = dailyRevenue / 8;
-            const lossPerHour = hourlyRevenue * lossFactor;
-            const lossPerOutage = lossPerHour * outageHours;
-            const dailyLoss = lossPerOutage * (outagesPerWeek / 7); // Promedio diario
-            const weeklyLoss = lossPerOutage * outagesPerWeek;
-            const monthlyLoss = weeklyLoss * 4.33; // Promedio de semanas por mes
-            const quarterlyLoss = monthlyLoss * 3;
-            const annualLoss = monthlyLoss * 12;
+            // Selectores de resultados
+            const totalConsumptionDisplay = document.getElementById('total-consumption');
+            const estimatedAutonomyDisplay = document.getElementById('estimated-autonomy');
+            const alertMessage = document.getElementById('alert-message');
+
+            // Cargar datos guardados
+            const loadSavedData = () => {
+                const savedBatteryCapacity = localStorage.getItem('batteryCapacity');
+                const savedEfficiency = localStorage.getItem('inverterEfficiency');
+                
+                if (savedBatteryCapacity) {
+                    document.getElementById('battery-capacity').value = savedBatteryCapacity;
+                }
+                if (savedEfficiency) {
+                    document.getElementById('inverter-efficiency').value = savedEfficiency;
+                }
+            };
+
+            // Guardar datos en localStorage
+            const saveToLocalStorage = () => {
+                localStorage.setItem('equipmentList', JSON.stringify(equipmentList));
+                localStorage.setItem('batteryCapacity', document.getElementById('battery-capacity').value);
+                localStorage.setItem('inverterEfficiency', document.getElementById('inverter-efficiency').value);
+            };
+
+            // --- LÓGICA DE LA APLICACIÓN ---
+
+            // Mostrar/ocultar campo de factor de ciclo
+            consumptionTypeSelect.addEventListener('change', () => {
+                cycleFactorGroup.style.display = consumptionTypeSelect.value === 'ciclico' ? 'block' : 'none';
+            });
+
+            // Agregar un nuevo equipo
+            equipmentForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const newEquipment = {
+                    id: Date.now(),
+                    name: document.getElementById('equipment-name').value,
+                    power: parseFloat(document.getElementById('equipment-power').value),
+                    type: document.getElementById('consumption-type').value,
+                    cycleFactor: parseFloat(document.getElementById('cycle-factor').value) || 30,
+                };
+
+                equipmentList.push(newEquipment);
+                saveToLocalStorage();
+                renderTable();
+                equipmentForm.reset();
+                consumptionTypeSelect.dispatchEvent(new Event('change'));
+            });
+
+            // Renderizar la tabla de equipos
+            const renderTable = () => {
+                tableBody.innerHTML = '';
+                if (equipmentList.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: #666;">🚫 Aún no has agregado equipos</td></tr>';
+                    return;
+                }
+
+                equipmentList.forEach(eq => {
+                    const batteryCapacity = parseFloat(document.getElementById('battery-capacity').value);
+                    const inverterEfficiency = parseFloat(document.getElementById('inverter-efficiency').value);
+                    
+                    // Calcular autonomía individual para este equipo
+                    let individualAutonomy = 0;
+                    if (eq.power > 0 && !isNaN(batteryCapacity) && batteryCapacity > 0) {
+                        const effectiveBatteryCapacity = batteryCapacity * (inverterEfficiency / 100);
+                        const consumption = eq.type === 'ciclico' ? eq.power * (eq.cycleFactor / 100) : eq.power;
+                        individualAutonomy = effectiveBatteryCapacity / consumption;
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${eq.name}</strong></td>
+                        <td>${eq.power} W</td>
+                        <td><span style="padding: 0.2rem 0.5rem; border-radius: 15px; background: ${eq.type === 'continuo' ? '#A2F0B8' : '#D4AF37'}; color: #004225; font-size: 0.8rem;">${eq.type.charAt(0).toUpperCase() + eq.type.slice(1)}</span></td>
+                        <td><strong>${individualAutonomy > 0 ? individualAutonomy.toFixed(1) + ' horas' : 'N/A'}</strong></td>
+                        <td><button class="delete-btn" data-id="${eq.id}">✖</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            };
+
+            // Eliminar un equipo de la tabla
+            tableBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-btn')) {
+                    const equipmentId = parseInt(e.target.dataset.id);
+                    equipmentList = equipmentList.filter(eq => eq.id !== equipmentId);
+                    saveToLocalStorage();
+                    renderTable();
+                    updateChart();
+                }
+            });
+
+            // Calcular el consumo de un solo equipo
+            const calculateEquipmentConsumption = (equipment) => {
+                if (equipment.type === 'ciclico') {
+                    return equipment.power * (equipment.cycleFactor / 100);
+                }
+                return equipment.power;
+            };
+
+            // Realizar el cálculo final de autonomía
+            const calculateAutonomy = () => {
+                const batteryCapacity = parseFloat(document.getElementById('battery-capacity').value);
+                const inverterEfficiency = parseFloat(document.getElementById('inverter-efficiency').value);
+
+                if (isNaN(batteryCapacity) || batteryCapacity <= 0) {
+                    alert('⚠️ Por favor, ingresa una capacidad de batería válida.');
+                    return;
+                }
+
+                if (equipmentList.length === 0) {
+                    alert('⚠️ Por favor, agrega al menos un equipo antes de calcular.');
+                    return;
+                }
+
+                const totalConsumption = equipmentList.reduce((total, eq) => {
+                    return total + calculateEquipmentConsumption(eq);
+                }, 0);
+
+                const effectiveBatteryCapacity = batteryCapacity * (inverterEfficiency / 100);
+                const autonomyHours = totalConsumption > 0 ? effectiveBatteryCapacity / totalConsumption : 0;
+
+                // Mostrar resultados
+                totalConsumptionDisplay.textContent = `${totalConsumption.toFixed(2)} Wh`;
+                estimatedAutonomyDisplay.textContent = `${autonomyHours.toFixed(1)} Horas`;
+
+                // Mostrar alerta si es necesario
+                alertMessage.style.display = autonomyHours < 4 && autonomyHours > 0 ? 'block' : 'none';
+
+                // Actualizar tabla con autonomías individuales
+                renderTable();
+                updateChart();
+            };
+
+            // Event listeners para inputs con debounce
+            let debounceTimer;
+            const setupDebouncedInputs = () => {
+                const inputs = ['battery-capacity', 'inverter-efficiency'];
+                
+                inputs.forEach(inputId => {
+                    const input = document.getElementById(inputId);
+                    input.addEventListener('input', () => {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => {
+                            saveToLocalStorage();
+                            if (equipmentList.length > 0) {
+                                renderTable();
+                                calculateAutonomy();
+                            }
+                        }, 500);
+                    });
+                });
+            };
+
+            calculateBtn.addEventListener('click', calculateAutonomy);
+
+            // Limpiar toda la aplicación
+            clearBtn.addEventListener('click', () => {
+                if (equipmentList.length === 0) return;
+                
+                if (confirm('🗑️ ¿Estás seguro de que deseas limpiar todos los datos?')) {
+                    equipmentList = [];
+                    localStorage.removeItem('equipmentList');
+                    localStorage.removeItem('batteryCapacity');
+                    localStorage.removeItem('inverterEfficiency');
+                    renderTable();
+                    document.getElementById('battery-capacity').value = '';
+                    document.getElementById('inverter-efficiency').value = '90';
+                    totalConsumptionDisplay.textContent = '0 Wh';
+                    estimatedAutonomyDisplay.textContent = '0 Horas';
+                    alertMessage.style.display = 'none';
+                    if (consumptionChart) {
+                        consumptionChart.destroy();
+                        initializeChart();
+                    }
+                }
+            });
+
+            // --- LÓGICA DEL GRÁFICO (Chart.js) ---
+            const initializeChart = () => {
+                const ctx = document.getElementById('consumption-chart').getContext('2d');
+                if (consumptionChart) {
+                    consumptionChart.destroy();
+                }
+                consumptionChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Consumo (Wh)',
+                            data: [],
+                            backgroundColor: [
+                                '#A2F0B8',
+                                '#D4AF37',
+                                '#FF6B6B',
+                                '#4ECDC4',
+                                '#45B7D1',
+                                '#96CEB4',
+                                '#FFEAA7',
+                                '#DDA0DD',
+                                '#98D8C8',
+                                '#F7DC6F'
+                            ],
+                            borderColor: '#FFFFFF',
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: '📊 Distribución del Consumo',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                },
+                                color: '#004225'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const percentage = ((context.raw / context.dataset.data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                                        return `${context.label}: ${context.raw.toFixed(2)} Wh (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
             
-            // Actualizar la interfaz
-            perOutageElement.textContent = formatMoney(lossPerOutage);
-            dailyLossElement.textContent = formatMoney(dailyLoss);
-            weeklyLossElement.textContent = formatMoney(weeklyLoss);
-            monthlyLossElement.textContent = formatMoney(monthlyLoss);
-            quarterlyLossElement.textContent = formatMoney(quarterlyLoss);
-            annualLossElement.textContent = formatMoney(annualLoss);
-        }
-        
-        // Event listeners para los inputs
-        dailyRevenueInput.addEventListener('input', calculateLosses);
-        outageHoursInput.addEventListener('input', calculateLosses);
-        outagesPerWeekInput.addEventListener('input', calculateLosses);
-        lossFactorSelect.addEventListener('change', calculateLosses);
-        
-        // Calcular al cargar la página
-        window.addEventListener('load', calculateLosses);
+            const updateChart = () => {
+                if (equipmentList.length === 0) {
+                    consumptionChart.data.labels = [];
+                    consumptionChart.data.datasets[0].data = [];
+                } else {
+                    const labels = equipmentList.map(eq => eq.name);
+                    const data = equipmentList.map(eq => calculateEquipmentConsumption(eq));
+
+                    consumptionChart.data.labels = labels;
+                    consumptionChart.data.datasets[0].data = data;
+                }
+                consumptionChart.update();
+            };
+
+            // --- INICIALIZACIÓN ---
+            loadSavedData();
+            renderTable();
+            initializeChart();
+            setupDebouncedInputs();
+            
+            // Calcular automáticamente si hay datos guardados
+            if (equipmentList.length > 0 && document.getElementById('battery-capacity').value) {
+                calculateAutonomy();
+            }
+        });
     </script>
 </body>
 </html>
